@@ -16,7 +16,7 @@ object `1` extends IOApp.Simple {
       val first  = firstDigit.parse(line).map(_._2 * 10)
       val second = firstDigit.parse(line.reverse).map(_._2)
 
-      val either = List(first, second).combineAll
+      val either = (first, second).mapN { case (a, b) => a + b }
       either.leftMap(e => new RuntimeException(e.show))
     }
   }
@@ -29,7 +29,9 @@ object `1` extends IOApp.Simple {
       .through(text.lines)
     val result = input.evalMap(parseCoordinate(_).liftTo[IO]).foldMonoid
 
-    val out = banner.through(io.stdoutLines()) ++ result.through(io.stdoutLines()) ++ nl.through(io.stdoutLines())
+    val out = banner.through(io.stdoutLines()) ++
+              result.through(io.stdoutLines()) ++
+              nl.through(io.stdoutLines())
 
     out.compile.drain
   }
