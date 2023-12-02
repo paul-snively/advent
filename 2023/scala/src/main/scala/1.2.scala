@@ -1,8 +1,7 @@
 package `1.2023.advent`
 
-import cats._, cats.implicits._
-import cats.data.NonEmptyList
-import cats.effect._, cats.effect.implicits._
+import cats.implicits._
+import cats.effect._
 
 import fs2._
 
@@ -48,10 +47,12 @@ object Part2 extends IOApp.Simple {
     nine
   val coord  = number.surroundedBy(alpha.repUntil0(number)).rep0.map(_.flatten)
   
+  // Suppressing IterableOps here is warranted by pattern-matching on the non-empty List case.
+  @SuppressWarnings(Array("org.wartremover.warts.IterableOps"))
   def parseCoordinate(line: String): Either[RuntimeException, Int] = {
     if (line.isBlank()) 0.asRight[RuntimeException] else {
       val num = coord.parse(line).map { case (_, vs) => vs match {
-        case Nil => 0
+        case Nil      => 0
         case v :: Nil => v * 10 + v
         case h :: t   => h * 10 + t.last
       }}
@@ -60,6 +61,7 @@ object Part2 extends IOApp.Simple {
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   def run: IO[Unit] = {
     val banner = Stream.emit("Resulting total coordinate: ").covary[IO]
     val nl     = Stream.emit("\n").covary[IO]

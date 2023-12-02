@@ -1,7 +1,7 @@
 package `1.2023.advent`
 
-import cats._, cats.implicits._
-import cats.effect._, cats.effect.implicits._
+import cats.implicits._
+import cats.effect._
 
 import fs2._
 
@@ -11,6 +11,7 @@ object Part1 extends IOApp.Simple {
   val nonDigit   = alpha.rep0
   val firstDigit = digit.surroundedBy(nonDigit).map(_.asDigit)
 
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   def parseCoordinate(line: String): Either[RuntimeException, Int] = {
     if (line.isBlank()) 0.asRight[RuntimeException] else {
       val first  = firstDigit.parse(line).map(_._2 * 10)
@@ -21,6 +22,7 @@ object Part1 extends IOApp.Simple {
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Any"))
   def run: IO[Unit] = {
     val banner = Stream.emit("Resulting total coordinate: ").covary[IO]
     val nl     = Stream.emit("\n").covary[IO]

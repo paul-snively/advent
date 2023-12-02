@@ -6,6 +6,8 @@ version := "1.0.0"
 
 scalaVersion := "2.13.12"
 
+wartremoverErrors ++= Warts.unsafe
+
 Compile / run / fork := true
 Test / fork          := true
 
