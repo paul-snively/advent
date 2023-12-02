@@ -7,7 +7,7 @@ import fs2._
 
 import cats.parse.Rfc5234._
 
-object `1` extends IOApp.Simple {
+object `1.1` extends IOApp.Simple {
   val nonDigit   = alpha.rep0
   val firstDigit = digit.surroundedBy(nonDigit).map(_.asDigit)
 
@@ -24,7 +24,7 @@ object `1` extends IOApp.Simple {
   def run: IO[Unit] = {
     val banner = Stream.emit("Resulting total coordinate: ").covary[IO]
     val nl     = Stream.emit("\n").covary[IO]
-    val input  = io.readClassLoaderResource[IO]("input.txt")
+    val input  = io.readClassLoaderResource[IO]("1-input.txt")
       .through(text.utf8.decode)
       .through(text.lines)
     val result = input.evalMap(parseCoordinate(_).liftTo[IO]).foldMonoid
