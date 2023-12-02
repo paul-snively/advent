@@ -34,7 +34,7 @@ object Day2Part2 extends IOApp.Simple {
   
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
   def run: IO[Unit] = {
-    val banner = Stream.emit("Total of possible game IDs is ").covary[IO]
+    val banner = Stream.emit("Total of power of minimum bags is ").covary[IO]
     val nl     = Stream.emit("\n").covary[IO]
 
     val input = io.readClassLoaderResource[IO]("2-input.txt")
