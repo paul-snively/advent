@@ -8,7 +8,7 @@ import fs2._
 import cats.parse.Rfc5234._
 import cats.parse.Parser._
 
-object Part2 extends IOApp.Simple {
+object Day1Part2 extends IOApp.Simple {
   val int   = digit.map(d => List(d.asDigit))
   val oneht = string("oneight").as(List(1, 8))
   val twone = string("twone").as(List(2, 1))
