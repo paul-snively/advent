@@ -10,24 +10,43 @@ import cats.parse.Rfc5234._
 import cats.parse.Parser._
 
 object Part2 extends IOApp.Simple {
-  val int   = digit.map(_.asDigit)
-  val joker = string("twone")
-  val one   = string("one").as(1)
-  val two   = (string("two") <* not(string("ne"))).as(2)
-  val three = string("three").as(3)
-  val four  = string("four").as(4)
-  val five  = string("five").as(5)
-  val six   = string("six").as(6)
-  val seven = string("seven").as(7)
-  val eight = string("eight").as(8)
-  val nine  = string("nine").as(9)
-  val twtwo = (start ~ alpha.repUntil0(joker) *> joker).as(2).backtrack.map(List(_))
-  val twone = ((joker <* alpha.rep0).as(1)).rep0
+  val int   = digit.map(d => List(d.asDigit))
+  val oneht = string("oneight").as(List(1, 8))
+  val twone = string("twone").as(List(2, 1))
+  val theht = string("threeight").as(List(3, 8))
+  val feht  = string("fiveight").as(List(5, 8))
+  val ehtto = string("eightwo").as(List(8, 2))
+  val ehtth = string("eighthree").as(List(8, 3))
+  val nneht = string("nineight").as(List(9, 8))
+  val one   = string("one").as(List(1))
+  val two   = string("two").as(List(2))
+  val three = string("three").as(List(3))
+  val four  = string("four").as(List(4))
+  val five  = string("five").as(List(5))
+  val six   = string("six").as(List(6))
+  val seven = string("seven").as(List(7))
+  val eight = string("eight").as(List(8))
+  val nine  = string("nine").as(List(9))
  
-  val number = int | one | two | three | four | five | six | seven | eight | nine
-  val tag    = number.surroundedBy(alpha.repUntil0(number)).rep0
-  val coord = ((twtwo | tag) ~ tag ~ twone)
-    .map { case ((a, b), c) => a ++ b ++ c }
+  val number = 
+    int   |
+    oneht |
+    twone |
+    theht |
+    feht  |
+    ehtto |
+    ehtth |
+    nneht |
+    one   |
+    two   |
+    three |
+    four  |
+    five  |
+    six   |
+    seven |
+    eight |
+    nine
+  val coord  = number.surroundedBy(alpha.repUntil0(number)).rep0.map(_.flatten)
   
   def parseCoordinate(line: String): Either[RuntimeException, Int] = {
     if (line.isBlank()) 0.asRight[RuntimeException] else {
