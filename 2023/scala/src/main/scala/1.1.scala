@@ -7,7 +7,7 @@ import fs2._
 
 import cats.parse.Rfc5234._
 
-object `1.1` extends IOApp.Simple {
+object Part1 extends IOApp.Simple {
   val nonDigit   = alpha.rep0
   val firstDigit = digit.surroundedBy(nonDigit).map(_.asDigit)
 
