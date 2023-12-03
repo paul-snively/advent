@@ -14,6 +14,7 @@ object Day1Part2 extends IOApp.Simple {
   val twone = string("twone").as(List(2, 1))
   val theht = string("threeight").as(List(3, 8))
   val feht  = string("fiveight").as(List(5, 8))
+  val senin = string("sevenine").as(List(7, 9))
   val ehtto = string("eightwo").as(List(8, 2))
   val ehtth = string("eighthree").as(List(8, 3))
   val nneht = string("nineight").as(List(9, 8))
@@ -33,6 +34,7 @@ object Day1Part2 extends IOApp.Simple {
     twone |
     theht |
     feht  |
+    senin |
     ehtto |
     ehtth |
     nneht |
