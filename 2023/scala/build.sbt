@@ -14,6 +14,8 @@ Test / fork          := true
 connectInput := true
 outputStrategy := Some(StdoutOutput)
 
+addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+
 lazy val root = (project in file("."))
   .settings(
     libraryDependencies ++= List(
