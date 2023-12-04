@@ -25,10 +25,14 @@ object Day3Part1 extends IOApp.Simple {
       neighbor.substring(begin, end)
     }
 
-    val splitNum = anyChar.repUntil0(bigInt).string ~ bigInt.?
+    val splitNum = anyChar.repUntil0(digit.rep).string ~ digit.rep.string.?
 
     def parser(input: String): IO[(String, (String, Option[BigInt]))] = splitNum.parse(input)
-      .leftMap(e => new RuntimeException(e.show))
+      .bimap(
+        e => new RuntimeException(e.show),
+        { case (remainder, (soFar, so)) => (remainder, (soFar, so.map(BigInt.apply))) }
+
+      )
       .liftTo[IO]
 
     def check(num: BigInt, soFar: String, remainder: String): Boolean = {
@@ -53,32 +57,33 @@ object Day3Part1 extends IOApp.Simple {
 
     // Build a Stream from what's left to parse (everything) and what's been seen so far (nothing)
     val out = Stream.unfoldEval((block(1), "")) { case (toParse, seen) =>
-      for {
-        parsed <- parser(toParse)
-        (remainder, (alphas, numO)) = parsed
-        soFar = seen ++ alphas
-        o = numO.fold(Chunk.empty[BigInt]) { num =>
-          if (check(num, soFar, remainder)) Chunk.singleton(num) else Chunk.empty[BigInt]
-        }
-        result = if (remainder.isEmpty())           // If there's nothing left to parse, don't
-          none[(Chunk[BigInt], (String, String))]
-        else
+      if (toParse.isEmpty) {
+        none[(Chunk[BigInt], (String, String))].pure[IO]       // We're done here
+      } else {
+        for {
+          parsed <- parser(toParse)
+          (remainder, (alphas, numO)) = parsed
+          soFar   = seen ++ alphas
+          o       = numO.fold(Chunk.empty[BigInt]) { num =>
+            if (check(num, soFar, remainder)) Chunk.singleton(num) else Chunk.empty[BigInt]
+          }
           // Emit o and continue with what's left to parse and ALL of what's been seen
-          Option((o, (remainder, soFar ++ o.foldLeft("")((s, b) => s ++ b.show))))
-      } yield result
+          result  = Option((o, (remainder, soFar ++ (numO.fold("")(_.show)))))
+        } yield result
+      }
     }
     
-    out.foldMonoid.compile.lastOrError                // Fold part numbers into one Chunk
+    out.foldMonoid.compile.lastOrError                         // Fold part numbers into one Chunk
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
   def process(input: Stream[IO, String]): Stream[IO, BigInt] = {
-    input.sliding(3)                                  // 1 line above the one considered, 1 below
+    input.sliding(3)                                           // 1 line above the one considered, 1 below
       .evalMap {
         (extractPartNumbers _)
       }
-      .flatMap(Stream.chunk)                          // Absorb Chunks
-      .foldMonoid                                     // Add up part number totals from all blocks
+      .flatMap(Stream.chunk)                                   // Absorb Chunks
+      .foldMonoid                                              // Add up part number totals from all blocks
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
