@@ -13,7 +13,7 @@ import cats.parse.Numbers._
 
 object Day3Part1 extends IOApp.Simple {
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  def extractPartNumbers(incoming: Chunk[String]): IO[Chunk[BigInt]] = {
+  def extractPartNumbers(incoming: Chunk[String]): Stream[IO, BigInt] = {
     // Pad incoming Chunk if it's less than 3 lines or has blank ones
     val clean = incoming.filterNot(_.isBlank)
     val block = clean ++ Chunk.from(List.fill(3 - clean.size)("." * incoming(0).length))
@@ -39,7 +39,7 @@ object Day3Part1 extends IOApp.Simple {
       val numSize       = num.show.length
       val consumed      = soFar.length
       val begin         = if (consumed > 0) consumed - 1 else consumed
-      val end           = if (remainder.isEmpty) consumed + numSize + 0 else consumed + numSize + 1
+      val end           = consumed + numSize + (if (remainder.isEmpty) 0 else 1)
       val above         = neighborSlice(0)(begin, end)
       val below         = neighborSlice(2)(begin, end)
       val aboveNeighbor = above.exists(c => !(c == '.' || c.isDigit))
@@ -73,16 +73,17 @@ object Day3Part1 extends IOApp.Simple {
       }
     }
     
-    out.foldMonoid.compile.lastOrError                         // Fold part numbers into one Chunk
+    out
+      .foldMonoid                          // Fold part numbers into one Chunk
+      .flatMap(Stream.chunk)               // Unchunk
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
   def process(input: Stream[IO, String]): Stream[IO, BigInt] = {
     input.sliding(3)                                           // 1 line above the one considered, 1 below
-      .evalMap {
+      .flatMap {
         (extractPartNumbers _)
       }
-      .flatMap(Stream.chunk)                                   // Absorb Chunks
       .foldMonoid                                              // Add up part number totals from all blocks
   }
 
